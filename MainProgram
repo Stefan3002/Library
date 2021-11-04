@@ -3,12 +3,17 @@ from tkinter import ttk
 
 
 class Book:
+    Books = set()
     def __init__(self,author,title):
         self.Author = author
         self.Title = title
 
     def __str__(self):
         return f'{self.Title} by {self.Author}'
+
+    @classmethod
+    def AddBook(cls,book):
+        cls.Books.add(book)
 
 
 class Author:
@@ -29,7 +34,7 @@ def SearchByAuthor(AuthorName):
     auth = AuthorName.split()
     fname, lname = auth[0], auth[1]
     AuthorName = Author(fname, lname)
-    for book in books:
+    for book in Book.Books:
         if book.Author == AuthorName:
             yield book
 
@@ -72,7 +77,7 @@ class APP_GUI:
 
 
 
-books = set()
+
 fname = 'Books.txt'
 fhandle = open(fname)
 for line in fhandle:
@@ -83,7 +88,7 @@ for line in fhandle:
     authornames = authorfullname.split()
     author = Author(authornames[0], authornames[1])
     book = Book(author,title)
-    books.add(book)
+    Book.AddBook(book)
 
 
 root = Tk()
