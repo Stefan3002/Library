@@ -1,0 +1,92 @@
+from tkinter import *
+from tkinter import ttk
+
+
+class Book:
+    def __init__(self,author,title):
+        self.Author = author
+        self.Title = title
+
+    def __str__(self):
+        return f'{self.Title} by {self.Author}'
+
+
+class Author:
+    def __init__(self,fname,lname):
+        self.Fname = fname
+        self.Lname = lname
+
+    def __str__(self):
+        return f'{self.Fname} {self.Lname}'
+
+    def __eq__(self, other):
+        if not isinstance(other,Author):
+            raise ValueError('Can not compare a non-author type')
+        return self.Fname == other.Fname and self.Lname == other.Lname
+
+def SearchByAuthor(AuthorName):
+
+    auth = AuthorName.split()
+    fname, lname = auth[0], auth[1]
+    AuthorName = Author(fname, lname)
+    for book in books:
+        if book.Author == AuthorName:
+            yield book
+
+
+
+class APP_GUI:
+    def __init__(self,root):
+        self.Title = ttk.Label(root, text = 'Library', font = ('Courier',46,'italic','bold'))
+        self.Title.pack()
+        self.Search = ttk.Frame(root,width = 100, height = 200, relief = 'solid')
+        self.Search.pack()
+        self.SearchTitle = ttk.Label(self.Search, text = 'Search by author: ', font = ('Courier', 25, 'bold'))
+        self.SearchTitle.pack()
+
+        self.PrintedBooks = list()
+
+        self.SearchEntry = ttk.Entry(self.Search)
+        self.SearchEntry.pack()
+        self.NumberPressed = 0
+        self.SearchButton = ttk.Button(self.Search,command = lambda x = 'Search' : self.HandleButton(x), text = 'Search')
+        self.SearchButton.pack()
+
+
+    def HandleButton(self,x):
+        if x == 'Search':
+            self.NumberPressed += 1
+            if self.NumberPressed == 1:
+                self.ClearButton = ttk.Button(self.Search,text = 'Clear',command = lambda x = 'Clear' : self.HandleButton(x))
+                self.ClearButton.pack()
+            for book in SearchByAuthor(self.SearchEntry.get()):
+                self.Book = ttk.Label(self.Search, text = book)
+                self.PrintedBooks.append(self.Book)
+                self.Book.pack()
+
+        if x == 'Clear':
+            self.ClearButton.destroy()
+            for book in self.PrintedBooks:
+                book.destroy()
+                self.NumberPressed = 0
+
+
+
+books = set()
+fname = 'Books.txt'
+fhandle = open(fname)
+for line in fhandle:
+    line = line.rstrip()
+    comma = line.index(',')
+    authorfullname = line[0 : comma]
+    title = line[comma + 2 : -1]
+    authornames = authorfullname.split()
+    author = Author(authornames[0], authornames[1])
+    book = Book(author,title)
+    books.add(book)
+
+
+root = Tk()
+main_window = APP_GUI(root)
+mainloop()
+
